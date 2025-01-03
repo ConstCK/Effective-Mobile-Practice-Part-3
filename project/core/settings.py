@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'restframework',
+    'rest_framework',
     'corsheaders',
     'debug_toolbar',
     'exhibition.apps.ExhibitionConfig',
@@ -72,7 +72,8 @@ DATABASES = {'default': {'ENGINE': 'django.db.backends.postgresql',
                          'PASSWORD': os.getenv('DB_PASSWORD'),
                          'HOST': os.getenv('DB_HOST'),
                          'PORT': os.getenv('DB_PORT'),
-                         }, }
+                         },
+             }
 
 
 AUTH_PASSWORD_VALIDATORS = [
