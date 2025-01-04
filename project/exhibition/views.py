@@ -1,8 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
 from django.db.models import Avg, Max, Subquery, OuterRef, F, Sum
 from django.http import Http404
-from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 
@@ -99,7 +97,7 @@ class BreedViewSet(viewsets.ModelViewSet):
         # Получение породы собак с указанным id из БД с дополнительными данными
         try:
             breed = Breed.objects.get(id=kwargs.get('pk'))
-            serializer = DogSerializer(breed)
+            serializer = BreedSerializer(breed)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             raise Http404({'error': f'Порода собак с указанным id={kwargs.get('pk')} не найдена.'})
