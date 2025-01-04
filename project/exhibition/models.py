@@ -43,7 +43,8 @@ class Dog(models.Model):
     favourite_food = models.CharField(max_length=128, verbose_name='Любимая еда')
     favourite_toy = models.CharField(max_length=128, verbose_name='Любимая игрушка')
     breed = models.ForeignKey(Breed,
-                              on_delete=models.CASCADE, verbose_name='Порода собаки')
+                              on_delete=models.CASCADE, verbose_name='Порода собаки',
+                              related_name='dogs')
 
     def __str__(self) -> str:
         return f'Собака по кличке {self.name}'
@@ -51,4 +52,6 @@ class Dog(models.Model):
     class Meta:
         verbose_name = 'Собака'
         verbose_name_plural = 'Собаки'
-        ordering = ('name',)
+        ordering = ('breed', 'id')
+        constraints = (models.UniqueConstraint(fields=('name', 'age', 'breed', 'gender'),
+                                               name='Unique dog',),)
