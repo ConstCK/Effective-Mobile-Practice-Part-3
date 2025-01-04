@@ -1,44 +1,41 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Avg, Max, Subquery, OuterRef, F, Sum
+from django.db.models import Avg, Max, Subquery, OuterRef, F, Sum, FloatField, Count
+
 from django.http import Http404
 from rest_framework import viewsets, status
+from rest_framework.request import Request
 from rest_framework.response import Response
 
+from . import models
 from .models import Dog, Breed
 from .serializers import DogSerializer, BreedSerializer
-from .utils import DogsMixin
+from .utils import SubqueryMixin
 
 
-class DogViewSet(viewsets.ModelViewSet, DogsMixin):
+class DogViewSet(viewsets.ModelViewSet, SubqueryMixin):
     """Набор представлений для CRUD запросов к объектам Dog"""
     serializer_class = DogSerializer
     queryset = Dog.objects.all()
 
-    def list(self, request, *args, **kwargs) -> Response:
-        # Получение списка всех собак из БД с дополнительными данными
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        # Получение списка всех собак из БД с дополнительными данными о среднем возрасте
+        # для каждой породы
         queryset = Dog.objects.all()
-        # breeds = Breed.objects.annotate(avg_age=Avg('dogs__age')).values('avg_age', 'dogs__id')
-        # breeds = Breed.objects.filter(id=OuterRef('dogs__breed'))
-        # dogs = Dog.objects.filter(breed=OuterRef('breed')).values('age')
-        #
-        # q = Dog.objects.annotate(avg_age=Avg(Subquery(dogs), output_field=models.FloatField()))
-        # for i in q:
-        #     print(i.name, i.avg_age, i.breed)
-
-        serializer = DogSerializer(queryset, many=True)
-
+        result = queryset.annotate(average_age=Subquery(self.get_average_age()))
+        serializer = DogSerializer(result, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def retrieve(self, request, *args, **kwargs) -> Response:
+    def retrieve(self, request: Request, *args, **kwargs) -> Response:
         # Получение собаки с указанным id из БД с дополнительными данными
         try:
             dog = Dog.objects.get(id=kwargs.get('pk'))
+            dog.number = self.get_dogs_number_for_breed(dog.breed.id)
             serializer = DogSerializer(dog)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             raise Http404({'error': f'Животное с указанным id={kwargs.get('pk')} не найдено.'})
 
-    def create(self, request, *args, **kwargs) -> Response:
+    def create(self, request: Request, *args, **kwargs) -> Response:
         # Создание объекта собака в БД
         try:
             serializer = DogSerializer(data=request.data)
@@ -50,7 +47,7 @@ class DogViewSet(viewsets.ModelViewSet, DogsMixin):
             return Response({'error': f'Ошибка создания объекта: {error}'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-    def destroy(self, request, *args, **kwargs) -> Response:
+    def destroy(self, request: Request, *args, **kwargs) -> Response:
         # Удаление объекта собака с указанным id в БД
         try:
             dog = Dog.objects.get(id=kwargs.get('pk'))
@@ -61,7 +58,7 @@ class DogViewSet(viewsets.ModelViewSet, DogsMixin):
         except ObjectDoesNotExist:
             raise Http404(f'Животное с указанным id={kwargs.get('pk')} не найдено.')
 
-    def update(self, request, *args, **kwargs) -> Response:
+    def update(self, request: Request, *args, **kwargs) -> Response:
         # Обновление объекта собака с указанным id в БД
         try:
             dog = Dog.objects.get(id=kwargs.get('pk'))
@@ -78,18 +75,19 @@ class DogViewSet(viewsets.ModelViewSet, DogsMixin):
             raise Http404(f'Животное с указанным id={kwargs.get('pk')} не найдено.')
 
 
-class BreedViewSet(viewsets.ModelViewSet):
+class BreedViewSet(viewsets.ModelViewSet, SubqueryMixin):
     """Набор представлений для CRUD запросов к объектам Breed"""
     serializer_class = BreedSerializer
     queryset = Breed.objects.all()
 
-    def list(self, request, *args, **kwargs) -> Response:
+    def list(self, request: Request, *args, **kwargs) -> Response:
         # Получение списка всех пород собак из БД с дополнительными данными
         queryset = Breed.objects.all()
-        serializer = BreedSerializer(queryset, many=True)
+        result = queryset.annotate(total_dogs=Subquery(self.get_dogs_number_for_all_breeds()))
+        serializer = BreedSerializer(result, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def retrieve(self, request, *args, **kwargs) -> Response:
+    def retrieve(self, request: Request, *args, **kwargs) -> Response:
         # Получение породы собак с указанным id из БД с дополнительными данными
         try:
             breed = Breed.objects.get(id=kwargs.get('pk'))
@@ -98,7 +96,7 @@ class BreedViewSet(viewsets.ModelViewSet):
         except ObjectDoesNotExist:
             raise Http404({'error': f'Порода собак с указанным id={kwargs.get('pk')} не найдена.'})
 
-    def create(self, request, *args, **kwargs) -> Response:
+    def create(self, request: Request, *args, **kwargs) -> Response:
         # Создание объекта порода собаки в БД
         try:
             serializer = BreedSerializer(data=request.data)
@@ -110,7 +108,7 @@ class BreedViewSet(viewsets.ModelViewSet):
             return Response({'error': f'Ошибка создания объекта: {error}'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-    def destroy(self, request, *args, **kwargs) -> Response:
+    def destroy(self, request: Request, *args, **kwargs) -> Response:
         # Удаление объекта порода собаки с указанным id в БД
         try:
             breed = Breed.objects.get(id=kwargs.get('pk'))
@@ -120,7 +118,7 @@ class BreedViewSet(viewsets.ModelViewSet):
         except ObjectDoesNotExist:
             raise Http404(f'Порода собак с указанным id={kwargs.get('pk')} не найдена.')
 
-    def update(self, request, *args, **kwargs) -> Response:
+    def update(self, request: Request, *args, **kwargs) -> Response:
         # Обновление объекта порода собаки с указанным id в БД
         try:
             breed = Breed.objects.get(id=kwargs.get('pk'))
