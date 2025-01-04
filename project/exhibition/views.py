@@ -14,7 +14,7 @@ class DogViewSet(viewsets.ModelViewSet, DogsMixin):
     serializer_class = DogSerializer
     queryset = Dog.objects.all()
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs) -> Response:
         # Получение списка всех собак из БД с дополнительными данными
         queryset = Dog.objects.all()
         # breeds = Breed.objects.annotate(avg_age=Avg('dogs__age')).values('avg_age', 'dogs__id')
@@ -29,9 +29,8 @@ class DogViewSet(viewsets.ModelViewSet, DogsMixin):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs) -> Response:
         # Получение собаки с указанным id из БД с дополнительными данными
-
         try:
             dog = Dog.objects.get(id=kwargs.get('pk'))
             serializer = DogSerializer(dog)
@@ -39,7 +38,7 @@ class DogViewSet(viewsets.ModelViewSet, DogsMixin):
         except ObjectDoesNotExist:
             raise Http404({'error': f'Животное с указанным id={kwargs.get('pk')} не найдено.'})
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs) -> Response:
         # Создание объекта собака в БД
         try:
             serializer = DogSerializer(data=request.data)
@@ -51,7 +50,7 @@ class DogViewSet(viewsets.ModelViewSet, DogsMixin):
             return Response({'error': f'Ошибка создания объекта: {error}'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-    def destroy(self, request, *args, **kwargs):
+    def destroy(self, request, *args, **kwargs) -> Response:
         # Удаление объекта собака с указанным id в БД
         try:
             dog = Dog.objects.get(id=kwargs.get('pk'))
@@ -62,9 +61,8 @@ class DogViewSet(viewsets.ModelViewSet, DogsMixin):
         except ObjectDoesNotExist:
             raise Http404(f'Животное с указанным id={kwargs.get('pk')} не найдено.')
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs) -> Response:
         # Обновление объекта собака с указанным id в БД
-
         try:
             dog = Dog.objects.get(id=kwargs.get('pk'))
             dog_data = request.data.copy()
@@ -76,7 +74,6 @@ class DogViewSet(viewsets.ModelViewSet, DogsMixin):
             else:
                 return Response({'error': 'Некорректные данные о питомце'},
                                 status=status.HTTP_400_BAD_REQUEST)
-
         except ObjectDoesNotExist:
             raise Http404(f'Животное с указанным id={kwargs.get('pk')} не найдено.')
 
@@ -86,14 +83,13 @@ class BreedViewSet(viewsets.ModelViewSet):
     serializer_class = BreedSerializer
     queryset = Breed.objects.all()
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs) -> Response:
         # Получение списка всех пород собак из БД с дополнительными данными
         queryset = Breed.objects.all()
         serializer = BreedSerializer(queryset, many=True)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs) -> Response:
         # Получение породы собак с указанным id из БД с дополнительными данными
         try:
             breed = Breed.objects.get(id=kwargs.get('pk'))
@@ -102,7 +98,7 @@ class BreedViewSet(viewsets.ModelViewSet):
         except ObjectDoesNotExist:
             raise Http404({'error': f'Порода собак с указанным id={kwargs.get('pk')} не найдена.'})
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs) -> Response:
         # Создание объекта порода собаки в БД
         try:
             serializer = BreedSerializer(data=request.data)
@@ -114,7 +110,7 @@ class BreedViewSet(viewsets.ModelViewSet):
             return Response({'error': f'Ошибка создания объекта: {error}'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-    def destroy(self, request, *args, **kwargs):
+    def destroy(self, request, *args, **kwargs) -> Response:
         # Удаление объекта порода собаки с указанным id в БД
         try:
             breed = Breed.objects.get(id=kwargs.get('pk'))
@@ -124,7 +120,7 @@ class BreedViewSet(viewsets.ModelViewSet):
         except ObjectDoesNotExist:
             raise Http404(f'Порода собак с указанным id={kwargs.get('pk')} не найдена.')
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs) -> Response:
         # Обновление объекта порода собаки с указанным id в БД
         try:
             breed = Breed.objects.get(id=kwargs.get('pk'))

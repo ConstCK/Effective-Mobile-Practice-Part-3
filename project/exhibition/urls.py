@@ -11,4 +11,4 @@ dogs_router.register('breeds', BreedViewSet)
 urlpatterns = [
     path('', include(dogs_router.urls)),
     path('', include(breeds_router.urls)),
-    ]
+]
