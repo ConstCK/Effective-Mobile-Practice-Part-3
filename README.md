@@ -9,51 +9,41 @@
 "from django.core.management.utils import get_random_secret_key", "get_random_secret_key()"
 * Запустите сервер из каталога проекта (python manage.py runserver)
 
-EndPoints:
-localhost:8000/api/dogs/ - GET - Получение списка всех собак
-localhost:8000/api/dogs/id/ - GET - Получение собаки с указанным id
-localhost:8000/api/dogs/ - POST - Добавление собаки по шаблону:
-{
-    "name": "Dog's name",
-    "age": 3,
-    "gender": "FEMALE/MALE",
-    "color": "Dog's color",
-    "favourite_food": "Some Food",
-    "favourite_toy": "Some toy",
-    "breed": 2
-}
-localhost:8000/api/dogs/id/ - PUT - Изменение данных о собаке с указанным id по шаблону:
-{
-    "name": "Dog's name",
-    "age": 3,
-    "gender": "FEMALE/MALE",
-    "color": "Dog's color",
-    "favourite_food": "Some Food",
-    "favourite_toy": "Some toy",
-    "breed": 2
-}
-localhost:8000/api/dogs/id/ - DELETE - Удаление данных о собаке с указанным id
-localhost:8000/api/breeds/ - GET - Получение списка всех пород собак
-localhost:8000/api/breeds/id/ - GET - Получение породы с указанным id
-localhost:8000/api/breeds/ - POST - Добавление породы по шаблону:
-{
-    "name": "Breed",
-    "size": "TINY/SMALL/MEDIUM/LARGE",
-    "friendliness": 1,
-    "trainability": 5,
-    "shedding_amount": 1,
-    "exercise_needs": 3
-}
-localhost:8000/api/breeds/id/ - PUT - Изменение данных о породе с указанным id по шаблону:
-{
-    "name": "Breed",
-    "size": "TINY/SMALL/MEDIUM/LARGE",
-    "friendliness": 1,
-    "trainability": 5,
-    "shedding_amount": 1,
-    "exercise_needs": 3
-}
+## EndPoints:
+* localhost:8000/api/dogs/ - GET - Получение списка всех собак
+* localhost:8000/api/dogs/id/ - GET - Получение собаки с указанным id
+* localhost:8000/api/dogs/ - POST - Добавление собаки по шаблону
+* localhost:8000/api/dogs/id/ - PUT - Изменение данных о собаке с указанным id по шаблону
+* localhost:8000/api/dogs/id/ - DELETE - Удаление данных о собаке с указанным id
+* localhost:8000/api/breeds/ - GET - Получение списка всех пород собак
+* localhost:8000/api/breeds/id/ - GET - Получение породы с указанным id
+* localhost:8000/api/breeds/ - POST - Добавление породы по шаблону
+* localhost:8000/api/breeds/id/ - PUT - Изменение данных о породе с указанным id по шаблону
 * localhost:8000/api/breeds/id/ - DELETE - Удаление данных о породе с указанным id
+
+## Шаблоны:
+### Для создания/изменения собак
+
+{
+    "name": "Dog's name",
+    "age": 3,
+    "gender": "FEMALE/MALE",
+    "color": "Dog's color",
+    "favourite_food": "Some Food",
+    "favourite_toy": "Some toy",
+    "breed": 2
+}
+
+### Для создания/изменения породы собак
+
+{
+    "name": "Breed",
+    "size": "TINY/SMALL/MEDIUM/LARGE",
+    "friendliness": 1,
+    "trainability": 5,
+    "shedding_amount": 1,
+    "exercise_needs": 3
+}
 
 ## Для запуска приложение в контейнере:
 * **Docker Desktop должен быть запущен
